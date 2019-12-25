@@ -18,12 +18,13 @@ import numpy as np
 from imutils.video import FPS
 from imutils.video import VideoStream
 
+from box_drawer import BoxDrawController
 from duration_estimator import StayDurationEstimator
+from line_function import LineFunction
 from memory_controller import MemoryController
 from pyimagesearch.centroidtracker import CentroidTracker
 from pyimagesearch.trackableobject import TrackableObject
 from yolo3_detection_wrapper import YoloDetection
-from box_drawer import BoxDrawController
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -37,7 +38,9 @@ ap.add_argument("-s", "--skip-frames", type=int, default=30,
                 help="# of skip frames between detections")
 ap.add_argument("-o", "--output", default='output/output.mp4', type=str,
                 help="path to optional output video file")
-ap.add_argument("-i", "--input", default='video.mp4', type=str,
+ap.add_argument("-t", "--trending_path", default='output/trending_output.mp4', type=str,
+                help="path to optional treding output video file")
+ap.add_argument("-i", "--input", default='videos/hiv00229_original.mp4', type=str,
                 help="path to optional input video file")
 args = vars(ap.parse_args())
 
@@ -97,25 +100,12 @@ totalExit = 0
 # start the frames per second throughput estimator
 fps = FPS().start()
 print(FRAMEPERSEC, fourcc)
-trending_video = cv2.VideoWriter('trending.mp4', fourcc, FRAMEPERSEC,
+trending_video = cv2.VideoWriter(args["trending_path"], fourcc, FRAMEPERSEC,
                                  (858, 480), False)
 model = YoloDetection()
 
 
 # loop over frames from the video stream
-class LineFunction(object):
-    def __init__(self, point1, point2):
-        self.point1 = point1
-        self.point2 = point2
-        self.a = 0.
-        self.b = 0.
-        self.c = 0.
-
-    # self.get_function_parameters()
-
-    def fx(self, point):
-        return (point[0] - self.point1[0]) * (self.point2[1] - self.point1[1]) - (point[1] - self.point1[1]) * (
-                    self.point2[0] - self.point1[0])
 
 
 frame_number = 0
